@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic HTML document setup with character set and viewport for responsive design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+    <!-- Link to Google Fonts for custom fonts and link to the main stylesheet -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+
+</head>
+<body>
+    <!-- Container for all main visible content -->
+    <div class="container">
+        <!-- Header section with the main title of the page -->
+        <header>
+            <h1>Music Database</h1>
+        </header>
+        
+        <!-- Main content area -->
+        <main>
+            <!-- Section for adding a new song to the database -->
+            <section class="form-section">
+                <h2>Add a New Song</h2>
+                <form id="addSongForm" class="song-form">
+                    <input type="text" id="title" placeholder="Title" required>
+                    <input type="text" id="artist" placeholder="Artist" required>
+                    <input type="text" id="album" placeholder="Album">
+                    <input type="number" id="year" placeholder="Year">
+                    <input type="text" id="genre" placeholder="Genre">
+                    <button type="submit">Add Song</button>
+                </form>
+            </section>
+
+            <!-- Section for searching through the database -->
+            <section class="search-section">
+                <h2>Search for a Specific Song</h2>
+                <form id="searchSongForm" class="search-form">
+                    <input type="text" id="searchInput" placeholder="Search">
+                    <button type="button" id="searchButton">Search</button>
+                </form>
+            </section>
+            
+            <!-- Section to display list of songs -->
+            <section class="song-list-section">
+                <h2>Songs</h2>
+                <ul id="songsList" class="song-list"></ul>
+            </section>
+        </main>
+        
+        <!-- Footer section with copyright information -->
+        <footer class="footer">
+            <p>&copy; 2024 Miska's Music Database</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript to handle song listing and form interactions -->
+    <script>
+        // Function to fetch and display songs from the server
+        function fetchSongs(query = '') {
+            fetch(`/api/songs${query}`) // Send GET request to the server, with optional query for search
+                .then(response => response.json()) // Convert the response to JSON
+                .then(data => {
+                    const list = document.getElementById('songsList');
+                    list.innerHTML = ''; // Clear the existing list
+                    data.forEach(song => {
+                        const li = document.createElement('li'); // Create a new list item for each song
+                        li.textContent = `${song.title} by ${song.artist}`; // Set the text of the list item
+                        list.appendChild(li); // Add the list item to the list
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error:', error); // Log any errors that occur
+                });
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listener for form submission to add a new song
+            document.getElementById('addSongForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent the default form submission behavior
+    
+                // Collect form data into an object
+                const formData = {
+                    title: document.getElementById('title').value,
+                    artist: document.getElementById('artist').value,
+                    album: document.getElementById('album').value,
+                    year: document.getElementById('year').value,
+                    genre: document.getElementById('genre').value,
+                };
+    
+                // Send a POST request to the server with the form data
+                fetch('/api/songs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Indicate the type of content being sent
+                    },
+                    body: JSON.stringify(formData), // Convert formData object to JSON string
+                })
+                .then(response => response.json()) // Convert the response to JSON
+                .then(data => {
+                    console.log('Success:', data); // Log success message and data
+                    fetchSongs(); // Refresh the song list
+                })
+                .catch((error) => {
+                    console.error('Error:', error); // Log any errors that occur
+                });
+    
+                // Clear the form fields after submission
+                document.getElementById('addSongForm').reset();
+            });
+    
+            // Event listener for search functionality
+            document.getElementById('searchButton').addEventListener('click', function() {
+                const searchTerm = document.getElementById('searchInput').value;
+                
+                // Constructing the query URL
+                const queryURL = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : '';
+    
+                // Fetch songs based on the search query
+                fetchSongs(queryURL);
+            });
+    
+            // Initial fetch and display of songs
+            fetchSongs();
+        });
+    </script>
+</body>
+</html>
