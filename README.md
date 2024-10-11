@@ -1,4 +1,3 @@
 # MusicDatabase
-Fullstack kurssin projekti 2.
-
-Apuna on käytetty Chat GPT-4 ja CoPilottia, kommentointiin, inspiraatioon, sekä virheiden etsintään.
+A Simple add where you can add and "store" songs. If you cannot add or find any songs, the backend might be offline.
+HTML/CSS/Javascript / MongoDB
